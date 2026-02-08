@@ -26,6 +26,12 @@ def recv_line(client):
             break
         data+=chunk
     return data.decode(errors="ignore").strip()
+def log_command(ip,command):
+    timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    entry=f"[{timestamp}] {ip} executed -> {command}\n"
+    print(f"[CMD] {ip} -> {command}")
+    with open("logs/commands.log","a") as f:
+        f.write(entry)
 def start_server():
     print(f"[Mirage] Listening on port {PORT}...")
     server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -42,7 +48,25 @@ def start_server():
             client.send(b"password: ")
             password=recv_line(client)
             log_credentials(ip,username,password)
-            client.send(b"\nAccess denied\n")
+            client.send(b"\nAccess granted\n")
+            client.send(b"Welcome root!\n\n")
+            while True:
+                client.send(b"root@secure-server:-$ ")
+                command=recv_line(client)
+                if not command:
+                    break
+                log_command(ip,command)
+                if command=="ls":
+                    client.send(b"secret.txt passwords.db logs backup.tar\n")
+                elif command=="pwd":
+                    client.send(b"/root\n")
+                elif command=="whoami":
+                    client.send(b"root\n")
+                elif command in ["exit","quit"]:
+                    client.send(b"logout\n")
+                    break
+                else:
+                    client.send(b"command not found\n")
         except Exception as e:
             print("Error:",e)
         client.close()
