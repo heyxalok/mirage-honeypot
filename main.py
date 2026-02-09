@@ -17,14 +17,17 @@ def log_credentials(ip,username,password):
 def recv_line(client):
     data=b""
     while True:
-        chunk=client.recv(1)
-        if not chunk:
-            break
-        if chunk == b"\r" and not data:
-            continue;
-        if chunk ==b"\n":
-            break
-        data+=chunk
+        try:
+            chunk=client.recv(1)
+            if not chunk:
+                return None
+            if chunk==b"\r" and not data:
+                continue
+            if chunk==b"\n":
+                break
+            data+=chunk
+        except:
+            return None
     return data.decode(errors="ignore").strip()
 def log_command(ip,command):
     timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -53,20 +56,30 @@ def start_server():
             while True:
                 client.send(b"root@secure-server:-$ ")
                 command=recv_line(client)
-                if not command:
+                if command is None or command=="":
                     break
                 log_command(ip,command)
                 if command=="ls":
                     client.send(b"secret.txt passwords.db logs backup.tar\n")
+                elif command.startswith("cat"):
+                    if "secret.txt" in command:
+                        client.send(b"Top Secret Data: Project Mirage\nDo not share.\n")
+                    else:
+                        client.send(b"No such file\n")
                 elif command=="pwd":
                     client.send(b"/root\n")
                 elif command=="whoami":
                     client.send(b"root\n")
-                elif command in ["exit","quit"]:
+                elif command=="uname -a":
+                    client.send(b"Linux secure-server 5.4.0-42-generic x86_64 GNU/Linux\n")
+                elif command=="clear":
+                    client.send(b"\033[2J\033[H")
+                elif command in ["exit","quit","logout"]:
                     client.send(b"logout\n")
                     break
                 else:
                     client.send(b"command not found\n")
+
         except Exception as e:
             print("Error:",e)
         client.close()
