@@ -1,3 +1,4 @@
+import uuid
 import threading
 import socket
 from datetime import datetime
@@ -38,6 +39,10 @@ def log_command(ip,command):
         f.write(entry)
 def handle_client(client,addr):
     ip,port=addr
+    session_id=str(uuid.uuid4())
+    log_session_start(session_id,ip,port)
+    print(f"[SESSION START] {session_id} -> {ip}:{port}")
+    
     log_connection(ip,port)
     try:
         client.send(b"Welcome to Secure Server v1.0\n")
@@ -53,7 +58,7 @@ def handle_client(client,addr):
         client.send(b"\nAccess granted\n")
         client.send(b"Welcome root!\n\n")
         while True:
-            client.send(b"root@secure-server:-$ ")
+            client.send(b"root@secure-server:~$ ")
             command=recv_line(client)
             if command is None or command=="":
                 break
@@ -81,8 +86,20 @@ def handle_client(client,addr):
     except Exception as e:
         print("Session error:",e)
     finally:
+        log_session_end(session_id,ip)
+        print(f"[SESSION END] {session_id} -> {ip}")
         client.close()
         print(f"[-] Connection closed -> {ip}:{port}")
+def log_session_start(session_id,ip,port):
+    timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    entry=f"[{timestamp}] SESSION START {session_id} -> {ip}:{port}\n"
+    with open("logs/sessions.log","a") as f:
+        f.write(entry)
+def log_session_end(session_id,ip):
+    timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    entry=f"[{timestamp}] SESSION END {session_id} -> {ip}\n"
+    with open("logs/sessions.log","a") as f:
+        f.write(entry)
 def start_server():
     print(f"[Mirage] Listening on port {PORT}...")
     server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
