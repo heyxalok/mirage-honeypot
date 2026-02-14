@@ -1,3 +1,4 @@
+import threading
 import socket
 from datetime import datetime
 HOST="0.0.0.0"
@@ -90,7 +91,9 @@ def start_server():
     server.listen(5);
     while True:
         client,addr=server.accept()
-        handle_client(client,addr)
+        client_thread=threading.Thread(target=handle_client,args=(client,addr),daemon=True)
+        client_thread.start()
+        
         
 if __name__=="__main__":
     start_server()
