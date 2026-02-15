@@ -1,0 +1,8 @@
+{"timestamp": "2026-02-15T21:15:53.424183", "event": "SESSION_START", "session_id": "c9af47a1-e4aa-49d9-978d-88d4dd401ce6", "ip": "127.0.0.1", "data": {"port": 31575}}
+{"timestamp": "2026-02-15T21:16:15.305445", "event": "LOGIN_ATTEMPT", "session_id": "c9af47a1-e4aa-49d9-978d-88d4dd401ce6", "ip": "127.0.0.1", "data": {"username": "alok", "password": "mrnli"}}
+{"timestamp": "2026-02-15T21:16:25.164676", "event": "COMMAND", "session_id": "c9af47a1-e4aa-49d9-978d-88d4dd401ce6", "ip": "127.0.0.1", "data": {"command": "ls"}}
+{"timestamp": "2026-02-15T21:16:35.170455", "event": "COMMAND", "session_id": "c9af47a1-e4aa-49d9-978d-88d4dd401ce6", "ip": "127.0.0.1", "data": {"command": "cat secret.txt"}}
+{"timestamp": "2026-02-15T21:16:44.977643", "event": "COMMAND", "session_id": "c9af47a1-e4aa-49d9-978d-88d4dd401ce6", "ip": "127.0.0.1", "data": {"command": "uname -a"}}
+{"timestamp": "2026-02-15T21:16:50.181673", "event": "COMMAND", "session_id": "c9af47a1-e4aa-49d9-978d-88d4dd401ce6", "ip": "127.0.0.1", "data": {"command": "clear"}}
+{"timestamp": "2026-02-15T21:16:58.641547", "event": "COMMAND", "session_id": "c9af47a1-e4aa-49d9-978d-88d4dd401ce6", "ip": "127.0.0.1", "data": {"command": "logout"}}
+{"timestamp": "2026-02-15T21:16:58.647281", "event": "SESSION_END", "session_id": "c9af47a1-e4aa-49d9-978d-88d4dd401ce6", "ip": "127.0.0.1", "data": {}}

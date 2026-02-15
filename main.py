@@ -1,3 +1,4 @@
+import json
 import uuid
 import threading
 import socket
@@ -40,6 +41,7 @@ def log_command(ip,command):
 def handle_client(client,addr):
     ip,port=addr
     session_id=str(uuid.uuid4())
+    log_event("SESSION_START", session_id, ip, {"port": port})
     log_session_start(session_id,ip,port)
     print(f"[SESSION START] {session_id} -> {ip}:{port}")
     
@@ -54,6 +56,10 @@ def handle_client(client,addr):
         password=recv_line(client)
         if password is None:
             return
+        log_event("LOGIN_ATTEMPT", session_id, ip, {
+            "username": username,
+            "password": password
+        })
         log_credentials(ip,username,password)
         client.send(b"\nAccess granted\n")
         client.send(b"Welcome root!\n\n")
@@ -63,6 +69,7 @@ def handle_client(client,addr):
             if command is None or command=="":
                 break
             log_command(ip,command)
+            log_event("COMMAND", session_id, ip, {"command": command})
             if command=="ls":
                 client.send(b"secret.txt passwords.db logs backup.tar\n")
             elif command.startswith("cat"):
@@ -88,6 +95,7 @@ def handle_client(client,addr):
     finally:
         log_session_end(session_id,ip)
         print(f"[SESSION END] {session_id} -> {ip}")
+        log_event("SESSION_END",session_id,ip)
         client.close()
         print(f"[-] Connection closed -> {ip}:{port}")
 def log_session_start(session_id,ip,port):
@@ -100,6 +108,16 @@ def log_session_end(session_id,ip):
     entry=f"[{timestamp}] SESSION END {session_id} -> {ip}\n"
     with open("logs/sessions.log","a") as f:
         f.write(entry)
+def log_event(event_type,session_id,ip,data=None):
+    event={
+        "timestamp": datetime.now().isoformat(),
+        "event": event_type,
+        "session_id" : session_id,
+        "ip": ip,
+        "data": data or {}
+    }
+    with open("logs/events.jsonl","a") as f:
+        f.write(json.dumps(event)+ "\n")
 def start_server():
     print(f"[Mirage] Listening on port {PORT}...")
     server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
